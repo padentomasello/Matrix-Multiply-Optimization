@@ -3,7 +3,7 @@ UNAME = $(shell uname)
 
 # running on hive machines
 ifeq ($(UNAME),Linux)
-CC = gcc -std=gnu99 -fopenmp -O3
+CC = gcc -std=gnu99 -fopenmp -O3 -pg
 GOTO = $(HOME)/bin/GotoBLAS2_Linux
 GOTOLIB = $(GOTO)/libgoto2_nehalemp-r1.13.a
 endif
