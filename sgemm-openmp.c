@@ -25,7 +25,7 @@ void sgemm(int m, int n, int d, float *A, float *C) {
 	int k, j, i;
 	//#pragma omp for private(a1, a2, a3, a4, a5, c5, b, c1, c2, c3, c4, c1sum, k, i ,j)
 	{
-		for( int k = 0; k < m; k++ ) {
+		for( int k = 0; k+3 < m; k+=4 ) {
 			for( int j = 0; j < n; j++ ) {
 				b = _mm_load1_ps(At + j + k*n);
 				for( int i = 0; i < n; i++ ) {
