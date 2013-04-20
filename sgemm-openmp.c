@@ -16,26 +16,27 @@ void sgemm(int m, int n, int d, float *A, float *C) {
 	int k, j, i;
 	float *atemp, *ctemp;
 	float At[n*m];
+	int btemp, cinter;
 #pragma omp parallel
 	{
 #pragma omp for private(i, j)
 		for(int i = 0; i < n; i++) {
+			btemp = i*m;
+			cinter = i*(n+1);
 			for (int j = 0; j < m; j++) {
 
-				*(At+j+i*m) = *(A+i*(n+1)+j*n);
+				*(At+j+btemp) = *(A+cinter+j*n);
 			}
 		}
 
 
 		//  printf("test13 A2:%d, A:%d, C:%d, C:%d\n", A2, A, C, C);
-		__m128 a1, a2, a3, a4, a5, c5, b, c1, c2, c3, c4;
-		float c1sum;
-		int k, j, i;
-		float *atemp, *ctemp;
-		int btemp;
-#pragma omp for private(a1, a2, a3, a4, a5, c5, b, c1, c2, c3, c4, c1sum, k, i ,j)
+
+#pragma omp for private(a1, a2, a3, a4, a5, c5, b, c1, c2, c3, c4, c1sum, k, i ,j, btemp, ctemp, atemp, cinter)
 		for (i = 0; i < n; i++) { //Goes through column of C
 			k = 0;
+			btemp = (i*m);
+			cinter = (i*n);
 			for (k = 0; k + 19 < ps ; k += 20) { //Goes through 4 rows at a time of C and A.
 
 				c1 = _mm_setzero_ps();
@@ -43,12 +44,12 @@ void sgemm(int m, int n, int d, float *A, float *C) {
 				c3 = c1;
 				c4 = c1;
 				c5 = c1;
-				ctemp = C + (i * ps) + k;
-				btemp = (i*ps+1);
+				ctemp = C + (cinter) + k;
+
 				//		printf("test4. k:%d, i:%d, ps:%d\n", k, i, ps);
 				for (j = 0; j < m; j += 1) { //Goes through Goes through width of m, data strip.
 					atemp = A + (k) + (j * ps);
-					b = _mm_load1_ps((At+j+i*m));
+					b = _mm_load1_ps((At+j+btemp));
 					a1 = _mm_loadu_ps(atemp);
 					a2 = _mm_loadu_ps(atemp+4);
 					a3 = _mm_loadu_ps(atemp+8);
@@ -71,10 +72,10 @@ void sgemm(int m, int n, int d, float *A, float *C) {
 				//	printf("test3\n");
 				c1 = _mm_setzero_ps();
 				c2 = c1;
-				ctemp = C + (i * ps) + k;
+				ctemp = C + cinter + k;
 				for (int j = 0; j < m; j += 1) { //Goes through Goes through width of m, data strip.
 					atemp = A + (k) + (j * ps);
-					b = _mm_load1_ps((A + (j * ps) + (i * (ps + 1))));
+					b = _mm_load1_ps(At+j+btemp);
 					a1 = _mm_loadu_ps(atemp);
 					a2 = _mm_loadu_ps(atemp+4);
 					c2 = _mm_add_ps(_mm_mul_ps(a2, b), c2);
@@ -90,7 +91,7 @@ void sgemm(int m, int n, int d, float *A, float *C) {
 				c1 = _mm_setzero_ps();
 				for (int j = 0; j < m; j += 1) { //Goes through Goes through width of m, data strip.
 					//	printf("test4. k:%d, i:%d, ps:%d, j:%d, bi:%d\n", k, i, ps, j, (j * ps) + (i * (ps + 1)));
-					b = _mm_load1_ps((A + (j * ps) + (i * (ps + 1))));
+					b = _mm_load1_ps(At+j+btemp);
 					//	printf("test5\n");
 					a1 = _mm_loadu_ps((A + k + (j * ps)));
 					//	printf("test6\n");
@@ -99,7 +100,7 @@ void sgemm(int m, int n, int d, float *A, float *C) {
 
 				}
 				//	printf("test16\n");
-				_mm_storeu_ps((C + (i * ps) + k), c1);
+				_mm_storeu_ps((C + cinter + k), c1);
 				k += 4;
 
 			}
@@ -108,10 +109,10 @@ void sgemm(int m, int n, int d, float *A, float *C) {
 				c1sum = 0;
 				for (int j = 0; j < m; j +=1) {
 					float a1 = A[k + (j * ps)];
-					float b = A[(j * ps) + (i * (ps + 1))];
+					float b = At[j+btemp];
 					c1sum += a1*b;
 				}
-				*(C + (i * ps) + k) = c1sum;
+				*(C + cinter + k) = c1sum;
 				k += 1;
 			}
 		}
