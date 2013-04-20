@@ -27,9 +27,13 @@ void sgemm(int m, int n, int d, float *A, float *C) {
 	{
 		for( int k = 0; k < m; k++ ) {
 			for( int j = 0; j < n; j++ ) {
+				b = _mm_load1_ps(At + j + k*n);
 				for( int i = 0; i < n; i++ ) {
-
-					C[i+j*n] += A[i+k*n] * At[j+k*n];
+					c1 = _mm_loadu_ps(C+i+j*n);
+					a1 = _mm_loadu_ps(A + i+ k*n);
+					c1 = _mm_add_ps(_mm_mul_ps(a1, b), c1);
+					//C[i+j*n] += A[i+k*n] * At[j+k*n];
+					_mm_store_ps(C+i+j*n, c1);
 				}
 			}
 		}
