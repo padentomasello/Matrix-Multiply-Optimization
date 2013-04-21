@@ -28,9 +28,9 @@ int main(int argc, char **argv) {
 	srand(time(NULL ));
 	int counter = 0;
 	float sum = 0;
-//	int nStart = 32;
-//	int nEnd = 100;
-//	int mStart = 32;
+//	int nStart = 1400;
+//	int nEnd = 1500;
+//	int mStart = 50;
 //	int mEnd = 100;
 		int nStart = 400;
 		int nEnd = 1500;
