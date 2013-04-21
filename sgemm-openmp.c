@@ -10,7 +10,7 @@
 void sgemm(int m, int n, int d, float *A, float *C) {
 	//	printf("test11, n: %d, m: %d\n", n, m);
 	//	float* At = (float *) malloc(n*m*sizeof(float));
-	__m128 a1, c5, b, c1, c2, c3, c4, c6, c7, c8, c9, c10, c11, c12, c13, c14;
+	__m128 c5, b, c1, c2, c3, c4, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15;
 	int i, k, j, l,ln, temp, temp2, cinter;
 	float *atemp, *ctemp, *bpoint;
 	float *Bsmall;
@@ -33,28 +33,99 @@ void sgemm(int m, int n, int d, float *A, float *C) {
 		//	printf("test1\n");
 		//  printf("test13 A2:%d, A:%d, C:%d, C:%d\n", A2, A, C, C);
 		float bsmall[blocksize*m];
-		float small[56*m];
+		float small[60*m];
 		//	printf("test2\n");
-#pragma omp for private(a1, c5, b, c1, c2, c3, c4, c6, c7, c8, c9, c10, c11, c12, c13, c14, c1sum, k, i ,j, ctemp, atemp, cinter, l, ln, temp, temp2, Asmall, small, Bsmall, bpoint, bsmall) schedule(dynamic)
-		for (j = 0; j < n; j+= blocksize) { //Goes through column of C
-			cinter = (j*n);
-			//		printf("test2 j: %d, n:$d,\n,", j, n);
-			Bsmall = bsmall;
-			for(i = 0; i < blocksize && i+j < n; i++) {
-				temp = i*m;
-				temp2 = (j+i)*(n+1);
-				for (k = 0; k < m; k++) {
-					*(Bsmall+k+temp) = *(A+temp2+k*n);
-				}
-			}
-			Asmall = small;
-			//	printf("test3\n");
-			for (i = 0; i + 55 < n ; i += 56) { //Goes through 4 rows at a time of C and A.
+#pragma omp for private(c13, c14, c15, c5, b, c1, c2, c3, c4, c6, c7, c8, c9, c10, c11, c12, c1sum, k, i ,j, ctemp, atemp, cinter, l, ln, temp, temp2, Asmall, small, Bsmall, bpoint, bsmall) schedule(dynamic)
+//		for (j = 0; j < n; j+= blocksize) { //Goes through column of C
+//			cinter = (j*n);
+//			//		printf("test2 j: %d, n:$d,\n,", j, n);
+//			Bsmall = bsmall;
+//			for(i = 0; i < blocksize && i+j < n; i++) {
+//				temp = i*m;
+//				temp2 = (j+i)*(n+1);
+//				for (k = 0; k < m; k++) {
+//					*(Bsmall+k+temp) = *(A+temp2+k*n);
+//				}
+//			}
+//			Asmall = small;
+//			//	printf("test3\n");
+//			for (i = 0; i + 59 < n ; i += 60) { //Goes through 4 rows at a time of C and A.
+//				ctemp = C + (cinter) + i;
+//				for (ln = 0; ln < m; ln++){
+//					temp = ln*60;
+//					temp2 = i+(n*ln);
+//					for (l = 0; l < 60; l++) {
+//						*(Asmall+l+(temp)) = *(A+l+temp2);
+//					}
+//				}
+//				for (l = 0; (l < blocksize) && (l+j < n); l++) {
+//					ln = l*n;
+//					c1 = _mm_setzero_ps();
+//					c2 = c1;
+//					c3 = c1;
+//					c4 = c1;
+//					c5 = c1;
+//					c6 = c1;
+//					c7 = c1;
+//					c8 = c1;
+//					c9 = c1;
+//					c10 = c1;
+//					c11 = c1;
+//					c12 = c1;
+//					c13 = c1;
+//					c14 = c1;
+//					c15 = c1;
+//					bpoint = Bsmall+m*l;
+//					for (k = 0; k < m; k += 1) { //Goes through Goes through width of m, data strip.
+//						atemp = Asmall+60*k;
+//						b = _mm_load1_ps(bpoint+k);
+//						c1 = _mm_add_ps(_mm_mul_ps(_mm_loadu_ps(atemp), b), c1);
+//
+//						c2 = _mm_add_ps(_mm_mul_ps(_mm_loadu_ps(atemp+4), b), c2);
+//
+//						c3 = _mm_add_ps(_mm_mul_ps(_mm_loadu_ps(atemp+8), b), c3);
+//
+//						c4 = _mm_add_ps(_mm_mul_ps(_mm_loadu_ps(atemp+12), b), c4);
+//
+//						c5 = _mm_add_ps(_mm_mul_ps(_mm_loadu_ps(atemp+16), b), c5);
+//						c6 = _mm_add_ps(_mm_mul_ps(_mm_loadu_ps(atemp+20), b), c6);
+//						c7 = _mm_add_ps(_mm_mul_ps(_mm_loadu_ps(atemp+24), b), c7);
+//						c8 = _mm_add_ps(_mm_mul_ps(_mm_loadu_ps(atemp+28), b), c8);
+//						c9 = _mm_add_ps(_mm_mul_ps(_mm_loadu_ps(atemp+32), b), c9);
+//						c10 = _mm_add_ps(_mm_mul_ps(_mm_loadu_ps(atemp+36), b), c10);
+//						c11 = _mm_add_ps(_mm_mul_ps(_mm_loadu_ps(atemp+40), b), c11);
+//						c12 = _mm_add_ps(_mm_mul_ps(_mm_loadu_ps(atemp+44), b), c12);
+//						c13 = _mm_add_ps(_mm_mul_ps(_mm_loadu_ps(atemp+48), b), c13);
+//						c14 = _mm_add_ps(_mm_mul_ps(_mm_loadu_ps(atemp+52), b), c14);
+//						c15 = _mm_add_ps(_mm_mul_ps(_mm_loadu_ps(atemp+56), b), c15);
+//
+//
+//
+//
+//					}
+//					_mm_storeu_ps(ctemp+ln, c1);
+//					_mm_storeu_ps(ctemp+4+ln, c2);
+//					_mm_storeu_ps(ctemp+8+ln, c3);
+//					_mm_storeu_ps(ctemp+12+ln, c4);
+//					_mm_storeu_ps(ctemp+16+ln, c5);
+//					_mm_storeu_ps(ctemp+20+ln, c6);
+//					_mm_storeu_ps(ctemp+24+ln, c7);
+//					_mm_storeu_ps(ctemp+28+ln, c8);
+//					_mm_storeu_ps(ctemp+32+ln, c9);
+//					_mm_storeu_ps(ctemp+36+ln, c10);
+//					_mm_storeu_ps(ctemp+40+ln, c11);
+//					_mm_storeu_ps(ctemp+44+ln, c12);
+//					_mm_storeu_ps(ctemp+48+ln, c13);
+//					_mm_storeu_ps(ctemp+52+ln, c14);
+//					_mm_storeu_ps(ctemp+56+ln, c15);
+//				}
+//			}
+			for (i = 0; i + 39 < n ; i += 40) { //Goes through 4 rows at a time of C and A.
 				ctemp = C + (cinter) + i;
 				for (ln = 0; ln < m; ln++){
-					temp = ln*56;
+					temp = ln*40;
 					temp2 = i+(n*ln);
-					for (l = 0; l < 56; l++) {
+					for (l = 0; l < 40; l++) {
 						*(Asmall+l+(temp)) = *(A+l+temp2);
 					}
 				}
@@ -70,53 +141,25 @@ void sgemm(int m, int n, int d, float *A, float *C) {
 					c8 = c1;
 					c9 = c1;
 					c10 = c1;
-					c11 = c1;
-					c12 = c1;
-					c13 = c1;
-					c14 = c1;
+
 					bpoint = Bsmall+m*l;
 					for (k = 0; k < m; k += 1) { //Goes through Goes through width of m, data strip.
-						atemp = Asmall+56*k;
+						atemp = Asmall+40*k;
 						b = _mm_load1_ps(bpoint+k);
-						a1 = _mm_loadu_ps(atemp);
-						c1 = _mm_add_ps(_mm_mul_ps(a1, b), c1);
+						c1 = _mm_add_ps(_mm_mul_ps(_mm_loadu_ps(atemp), b), c1);
 
-						a1 = _mm_loadu_ps(atemp+4);
-						c2 = _mm_add_ps(_mm_mul_ps(a1, b), c2);
+						c2 = _mm_add_ps(_mm_mul_ps(_mm_loadu_ps(atemp+4), b), c2);
 
-						a1 = _mm_loadu_ps(atemp+8);
-						c3 = _mm_add_ps(_mm_mul_ps(a1, b), c3);
+						c3 = _mm_add_ps(_mm_mul_ps(_mm_loadu_ps(atemp+8), b), c3);
 
-						a1 = _mm_loadu_ps(atemp+12);
-						c4 = _mm_add_ps(_mm_mul_ps(a1, b), c4);
+						c4 = _mm_add_ps(_mm_mul_ps(_mm_loadu_ps(atemp+12), b), c4);
 
-						a1 = _mm_loadu_ps(atemp+16);
-						c5 = _mm_add_ps(_mm_mul_ps(a1, b), c5);
-
-						a1 = _mm_loadu_ps(atemp+20);
-
-						c6 = _mm_add_ps(_mm_mul_ps(a1, b), c6);
-						a1 = _mm_loadu_ps(atemp+24);
-						c7 = _mm_add_ps(_mm_mul_ps(a1, b), c7);
-						a1 = _mm_loadu_ps(atemp+28);
-						c8 = _mm_add_ps(_mm_mul_ps(a1, b), c8);
-						a1 = _mm_loadu_ps(atemp+32);
-						c9 = _mm_add_ps(_mm_mul_ps(a1, b), c9);
-						a1 = _mm_loadu_ps(atemp+36);
-						c10 = _mm_add_ps(_mm_mul_ps(a1, b), c10);
-
-						a1 = _mm_loadu_ps(atemp+40);
-						c11 = _mm_add_ps(_mm_mul_ps(a1, b), c11);
-						a1 = _mm_loadu_ps(atemp+44);
-						c12 = _mm_add_ps(_mm_mul_ps(a1, b), c12);
-						a1 = _mm_loadu_ps(atemp+48);
-						c13 = _mm_add_ps(_mm_mul_ps(a1, b), c13);
-						a1 = _mm_loadu_ps(atemp+52);
-						c14 = _mm_add_ps(_mm_mul_ps(a1, b), c14);
-
-
-
-
+						c5 = _mm_add_ps(_mm_mul_ps(_mm_loadu_ps(atemp+16), b), c5);
+						c6 = _mm_add_ps(_mm_mul_ps(_mm_loadu_ps(atemp+20), b), c6);
+						c7 = _mm_add_ps(_mm_mul_ps(_mm_loadu_ps(atemp+24), b), c7);
+						c8 = _mm_add_ps(_mm_mul_ps(_mm_loadu_ps(atemp+28), b), c8);
+						c9 = _mm_add_ps(_mm_mul_ps(_mm_loadu_ps(atemp+32), b), c9);
+						c10 = _mm_add_ps(_mm_mul_ps(_mm_loadu_ps(atemp+36), b), c10);
 					}
 					_mm_storeu_ps(ctemp+ln, c1);
 					_mm_storeu_ps(ctemp+4+ln, c2);
@@ -128,13 +171,50 @@ void sgemm(int m, int n, int d, float *A, float *C) {
 					_mm_storeu_ps(ctemp+28+ln, c8);
 					_mm_storeu_ps(ctemp+32+ln, c9);
 					_mm_storeu_ps(ctemp+36+ln, c10);
-					_mm_storeu_ps(ctemp+40+ln, c11);
-					_mm_storeu_ps(ctemp+44+ln, c12);
-					_mm_storeu_ps(ctemp+48+ln, c13);
-					_mm_storeu_ps(ctemp+52+ln, c14);
+
 				}
 			}
+			for (; i + 19 < n ; i += 20) { //Goes through 4 rows at a time of C and A.
+							ctemp = C + (cinter) + i;
+							for (ln = 0; ln < m; ln++){
+								temp = ln*20;
+								temp2 = i+(n*ln);
+								for (l = 0; l < 20; l++) {
+									*(Asmall+l+(temp)) = *(A+l+temp2);
+								}
+							}
+							for (l = 0; (l < blocksize) && (l+j < n); l++) {
+								ln = l*n;
+								c1 = _mm_setzero_ps();
+								c2 = c1;
+								c3 = c1;
+								c4 = c1;
+								c5 = c1;
 
+								bpoint = Bsmall+m*l;
+								for (k = 0; k < m; k += 1) { //Goes through Goes through width of m, data strip.
+									atemp = Asmall+20*k;
+									b = _mm_load1_ps(bpoint+k);
+									c1 = _mm_add_ps(_mm_mul_ps(_mm_loadu_ps(atemp), b), c1);
+
+									c2 = _mm_add_ps(_mm_mul_ps(_mm_loadu_ps(atemp+4), b), c2);
+
+									c3 = _mm_add_ps(_mm_mul_ps(_mm_loadu_ps(atemp+8), b), c3);
+
+									c4 = _mm_add_ps(_mm_mul_ps(_mm_loadu_ps(atemp+12), b), c4);
+
+									c5 = _mm_add_ps(_mm_mul_ps(_mm_loadu_ps(atemp+16), b), c5);
+
+								}
+								_mm_storeu_ps(ctemp+ln, c1);
+								_mm_storeu_ps(ctemp+4+ln, c2);
+								_mm_storeu_ps(ctemp+8+ln, c3);
+								_mm_storeu_ps(ctemp+12+ln, c4);
+								_mm_storeu_ps(ctemp+16+ln, c5);
+
+
+							}
+						}
 
 			//			for (; i + 7 < n ; i += 8) { //Goes through 4 rows at a time of C and A.
 			//				//	printf("test3\n");
@@ -171,9 +251,8 @@ void sgemm(int m, int n, int d, float *A, float *C) {
 						atemp = Asmall+4*k;
 						b = _mm_load1_ps(bpoint +k);
 						//	printf("test5\n");
-						a1 = _mm_loadu_ps(atemp);
 						//	printf("test6\n");
-						c1 = _mm_add_ps(_mm_mul_ps(a1, b), c1);
+						c1 = _mm_add_ps(_mm_mul_ps(_mm_loadu_ps(atemp), b), c1);
 						//	printf("test7\n");
 
 					}
@@ -193,10 +272,7 @@ void sgemm(int m, int n, int d, float *A, float *C) {
 				for (l = 0; (l < blocksize) && (l+j < n); l++) {
 					c1sum = 0;
 					for (k = 0; k < m; k +=1) {
-						float a1 = small[k];
-						//						float a1 = A[i + (k * n)];
-						float b = bsmall[k+(m*l)];
-						c1sum += a1*b;
+						c1sum += small[k]*bsmall[k+(m*l)];
 					}
 					*(C + cinter + i+l*n) = c1sum;
 
