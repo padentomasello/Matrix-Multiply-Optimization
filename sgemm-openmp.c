@@ -10,7 +10,7 @@
 void sgemm(int m, int n, int d, float *A, float *C) {
 	//	printf("test11, n: %d, m: %d\n", n, m);
 	//	float* At = (float *) malloc(n*m*sizeof(float));
-	__m128 a1, c5, b, c1, c2, c3, c4, c6, c7, c8, c9, c10, c11, c12, c13, c14;
+	__m128 a1, c5, b, c1, c2, c3, c4, c6, c7, c8, c9, c10, c11, c12;
 	int i, k, j, l,ln, temp, temp2, cinter;
 	float *atemp, *ctemp, *bpoint;
 	float *Bsmall;
@@ -35,7 +35,7 @@ void sgemm(int m, int n, int d, float *A, float *C) {
 		float bsmall[blocksize*m];
 		float small[40*m];
 		//	printf("test2\n");
-#pragma omp for private(a1, c5, b, c1, c2, c3, c4, c6, c7, c8, c9, c10, c11, c12, c13, c1sum, k, i ,j, ctemp, atemp, cinter, l, ln, temp, temp2, Asmall, small, Bsmall, bpoint, bsmall) schedule(dynamic)
+#pragma omp for private(a1, c5, b, c1, c2, c3, c4, c6, c7, c8, c9, c10, c11, c12, c1sum, k, i ,j, ctemp, atemp, cinter, l, ln, temp, temp2, Asmall, small, Bsmall, bpoint, bsmall) schedule(dynamic)
 		for (j = 0; j < n; j+= blocksize) { //Goes through column of C
 			cinter = (j*n);
 			//		printf("test2 j: %d, n:$d,\n,", j, n);
