@@ -33,21 +33,21 @@ void sgemm(int m, int n, int d, float *A, float *C) {
 		//	printf("test1\n");
 		//  printf("test13 A2:%d, A:%d, C:%d, C:%d\n", A2, A, C, C);
 		float bsmall[blocksize*m];
-		float small[60*m];
+		float small[40*m];
 		//	printf("test2\n");
 #pragma omp for private(c13, c14, c15, c5, b, c1, c2, c3, c4, c6, c7, c8, c9, c10, c11, c12, c1sum, k, i ,j, ctemp, atemp, cinter, l, ln, temp, temp2, Asmall, small, Bsmall, bpoint, bsmall) schedule(dynamic)
-//		for (j = 0; j < n; j+= blocksize) { //Goes through column of C
-//			cinter = (j*n);
-//			//		printf("test2 j: %d, n:$d,\n,", j, n);
-//			Bsmall = bsmall;
-//			for(i = 0; i < blocksize && i+j < n; i++) {
-//				temp = i*m;
-//				temp2 = (j+i)*(n+1);
-//				for (k = 0; k < m; k++) {
-//					*(Bsmall+k+temp) = *(A+temp2+k*n);
-//				}
-//			}
-//			Asmall = small;
+		for (j = 0; j < n; j+= blocksize) { //Goes through column of C
+			cinter = (j*n);
+			//		printf("test2 j: %d, n:$d,\n,", j, n);
+			Bsmall = bsmall;
+			for(i = 0; i < blocksize && i+j < n; i++) {
+				temp = i*m;
+				temp2 = (j+i)*(n+1);
+				for (k = 0; k < m; k++) {
+					*(Bsmall+k+temp) = *(A+temp2+k*n);
+				}
+			}
+			Asmall = small;
 //			//	printf("test3\n");
 //			for (i = 0; i + 59 < n ; i += 60) { //Goes through 4 rows at a time of C and A.
 //				ctemp = C + (cinter) + i;
