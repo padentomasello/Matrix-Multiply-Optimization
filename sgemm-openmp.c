@@ -18,28 +18,19 @@ void sgemm(int m, int n, int d, float *A, float *C) {
 	float *Asmall;
 	static int TWENTY = 40;
 	float c1sum;
-#pragma omp parallel num_threads(8)
+#pragma omp parallel num_threads(8) private(Bsmall, Asmall)
 	{
-		//#pragma omp for private(i, j)
-		//		for(j = 0; j < n; j++) {
-		//			btemp = j*m;
-		//			cinter = j*(n+1);
-		//			for (int k = 0; k < m; k++) {
-		//				*(At+k+btemp) = *(A+cinter+k*n);
-		//			}
-		//		}
+#pragma omp critical
+		{
+		Bsmall = (float *) malloc (blocksize*m*sizeof(float));
+		Asmall = (float *) malloc (40*m*sizeof(float));
+		}
 
-
-		//	printf("test1\n");
-		//  printf("test13 A2:%d, A:%d, C:%d, C:%d\n", A2, A, C, C);
-		float bsmall[blocksize*m];
-		float small[40*m];
 		//	printf("test2\n");
-#pragma omp for private(c13, c14, c15, c5, b, c1, c2, c3, c4, c6, c7, c8, c9, c10, c11, c12, c1sum, k, i ,j, ctemp, atemp, cinter, l, ln, temp, temp2, Asmall, small, Bsmall, bpoint, bsmall) schedule(dynamic)
+#pragma omp for private(c13, c14, c15, c5, b, c1, c2, c3, c4, c6, c7, c8, c9, c10, c11, c12, c1sum, k, i ,j, ctemp, atemp, cinter, l, ln, temp, temp2, bpoint) schedule(dynamic)
 		for (j = 0; j < n; j+= blocksize) { //Goes through column of C
 			cinter = (j*n);
 			//		printf("test2 j: %d, n:$d,\n,", j, n);
-			Bsmall = bsmall;
 			for(i = 0; i < blocksize && i+j < n; i++) {
 				temp = i*m;
 				temp2 = (j+i)*(n+1);
@@ -47,7 +38,6 @@ void sgemm(int m, int n, int d, float *A, float *C) {
 					*(Bsmall+k+temp) = *(A+temp2+k*n);
 				}
 			}
-			Asmall = small;
 //			//	printf("test3\n");
 //			for (i = 0; i + 59 < n ; i += 60) { //Goes through 4 rows at a time of C and A.
 //				ctemp = C + (cinter) + i;
@@ -272,7 +262,7 @@ void sgemm(int m, int n, int d, float *A, float *C) {
 				for (l = 0; (l < blocksize) && (l+j < n); l++) {
 					c1sum = 0;
 					for (k = 0; k < m; k +=1) {
-						c1sum += small[k]*bsmall[k+(m*l)];
+						c1sum += (*(Asmall+k))*(*(Bsmall+k+(m*l))); //bsmall[k+(m*l)];
 					}
 					*(C + cinter + i+l*n) = c1sum;
 
@@ -281,10 +271,9 @@ void sgemm(int m, int n, int d, float *A, float *C) {
 			}
 			//	printf("test5\n");
 		}
-
 	}
-
-
+free(Bsmall);
+free(Asmall);
 
 	//   printf("test14\n");
 	//		printf("test1\n");
