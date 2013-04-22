@@ -28,14 +28,14 @@ int main(int argc, char **argv) {
 	srand(time(NULL ));
 	int counter = 0;
 	float sum = 0;
-//	int nStart = 100;
-//	int nEnd = 1500;
-//	int mStart = 32;
-//	int mEnd = 100;
-		int nStart = 400;
-		int nEnd = 1500;
-		int mStart = 32;
-		int mEnd = 100;
+	int nStart = 400;
+	int nEnd = 1500;
+	int mStart = 32;
+	int mEnd = 150;
+//		int nStart = 400;
+//		int nEnd = 500;
+//		int mStart = 32;
+//		int mEnd = 200;
 	int loopEnd = 1;
 	if (argc == 3) {
 		nStart = atoi(argv[1]);
@@ -46,9 +46,9 @@ int main(int argc, char **argv) {
 	}
 
 	for (int loop = 0; loop < loopEnd; loop++)
-		for (int n = nStart; n < nEnd; n = n + 1 +n/3) {
+		for (int n = nStart; n < nEnd; n = n + 1 + n/3) {
 			/* Try different m */
-			for (int m = mStart; m < mEnd; m = m + 1 + m/3) {
+			for (int m = mStart; m < mEnd; m = m + 1+m/3) {
 				/* Allocate and fill 2 random matrices A, C */
 				//      printf("test5\n");
 				float *A = (float*) malloc((n + m) * n * sizeof(float));
