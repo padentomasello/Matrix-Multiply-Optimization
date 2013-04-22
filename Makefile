@@ -10,7 +10,7 @@ endif
 
 # running on 200 SD machines
 ifeq ($(UNAME),Darwin)
-CC = gcc -std=gnu99 -fopenmp -O3
+CC = gcc -std=gnu99 -fopenmp -O3 -S
 GOTO = $(HOME)/bin/GotoBLAS2
 GOTOLIB = $(GOTO)/libgoto2_nehalemp-r1.13.a
 endif
