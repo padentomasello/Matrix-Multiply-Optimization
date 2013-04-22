@@ -23,7 +23,7 @@ void sgemm(int m, int n, int d, float *A, float *C) {
 
 
 
-#pragma omp for private(c13, c14, c15, c5, b, c1, c2, c3, c4, c6, c7, c8, c9, c10, c11, c12, c1sum, k, i ,j, ctemp, atemp, cinter, l, ln, temp, temp2, small, bpoint, bsmall) schedule(dynamic)
+#pragma omp for schedule(static)
 		for (j = 0; j < n; j+= blocksize) { //Goes through column of C
 			cinter = (j*n);
 			//		printf("test2 j: %d, n:$d,\n,", j, n);
